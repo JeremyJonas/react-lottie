@@ -1,4 +1,5 @@
 node_modules
 *.log
 .idea
-dist
+# remove dist so we can use fork until pull request is published
+# dist
