@@ -1,5 +1,6 @@
 {
   "parser": "babel-eslint",
+  "plugins": ["jest"],
   "extends": "airbnb",
   "rules": {
     # We use _ to define private variables and methods in clases
@@ -19,4 +20,7 @@
     # propTypes can be object
     "react/forbid-prop-types": 0,
   },
+  "env": {
+    "jest/globals": true
+  }
 }
