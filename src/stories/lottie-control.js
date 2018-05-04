@@ -3,6 +3,11 @@ import Lottie from '../index';
 import * as animationDataA from './pinjump.json';
 import * as animationDataB from './TwitterHeart.json';
 
+const containerStyle = {
+  width: 400,
+  height: 400,
+};
+
 export default class LottieControl extends React.Component {
 
   constructor(props) {
@@ -14,6 +19,7 @@ export default class LottieControl extends React.Component {
       speed: 1,
       direction: 1,
       isDataA: true,
+      loop: true,
     };
   }
 
@@ -23,17 +29,16 @@ export default class LottieControl extends React.Component {
       margin: '10px auto',
       textAlign: 'center',
     };
-    const { isStopped, isPaused, direction, speed, isDataA } = this.state;
-    const defaultOptions = { animationData: (isDataA ? animationDataA : animationDataB) };
+    const { isStopped, isPaused, direction, speed, loop, isDataA } = this.state;
 
     return (<div>
       <Lottie
-        options={defaultOptions}
-        height={400}
-        width={400}
+        animationData={isDataA ? animationDataA : animationDataB}
+        style={containerStyle}
         isStopped={isStopped}
         isPaused={isPaused}
         speed={speed}
+        loop={loop}
         direction={direction}
       />
 
@@ -49,12 +54,12 @@ export default class LottieControl extends React.Component {
       >stop</button>
       <button
         style={centerStyle}
-        onClick={() => this.setState({ isStopped: false })}
+        onClick={() => this.setState({ isStopped: false, isPaused: false })}
       >play</button>
       <button
         style={centerStyle}
         onClick={() => this.setState({ isPaused: !isPaused })}
-      >pause</button>
+      >{isPaused ? 'unpause' : 'pause'}</button>
       <button
         style={centerStyle}
         onClick={() => this.setState({ direction: direction * -1 })}

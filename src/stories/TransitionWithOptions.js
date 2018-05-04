@@ -3,6 +3,11 @@ import Lottie from '../index';
 import * as animationDataA from './TwitterHeart.json';
 import * as animationDataB from './beating-heart.json';
 
+const containerStyle = {
+  width: 400,
+  height: 400,
+};
+
 /**
  * TransitionWithOptions: demonstrates how you can switch to a
  * new animation with different options. For example, you can start
@@ -10,12 +15,8 @@ import * as animationDataB from './beating-heart.json';
  * without mounting the component again
  */
 export default class TransitionWithOptions extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      showLoopedAnimation: true,
-    };
+  state = {
+    showLoopedAnimation: true,
   }
 
   clickHandler = () => {
@@ -29,21 +30,13 @@ export default class TransitionWithOptions extends React.Component {
       textAlign: 'center',
     };
     const { showLoopedAnimation } = this.state;
-    const animationOptionsWithLoop = {
-      animationData: animationDataA,
-      loop: true,
-    };
-    const animationOptionsWithoutLoop = {
-      animationData: animationDataB,
-      loop: false,
-    };
 
     return (
       <div>
         <Lottie
-          options={showLoopedAnimation ? animationOptionsWithLoop : animationOptionsWithoutLoop}
-          height={400}
-          width={400}
+          animationData={showLoopedAnimation ? animationDataA : animationDataB}
+          loop={showLoopedAnimation}
+          style={containerStyle}
         />
         <p style={centerStyle}>This animation is {showLoopedAnimation ? 'looped' : 'not looped'}</p>
         <button style={centerStyle} onClick={this.clickHandler}>

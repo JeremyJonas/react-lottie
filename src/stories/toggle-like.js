@@ -2,18 +2,26 @@ import React from 'react';
 import Lottie from '../index';
 import * as animationDataA from './TwitterHeart.json';
 
+const containerStyle = {
+  width: 400,
+  height: 400,
+};
+
 export default class ToggleLike extends React.Component {
 
-  constructor(props) {
-    super(props);
+  state = {
+    isLike: false,
+    speed: 1,
+  };
 
-    this.state = {
-      isStopped: true,
-      isPaused: false,
-      speed: 1,
-      direction: 1,
-      isLike: false,
-    };
+  _handleClick = () => {
+    const isLike = !this.state.isLike;
+
+    this.setState({
+      segments: isLike ? [0, 116] : [116, 0],
+      speed: isLike ? 1 : 1.5,
+      isLike,
+    });
   }
 
   render() {
@@ -22,27 +30,20 @@ export default class ToggleLike extends React.Component {
       margin: '10px auto',
       textAlign: 'center',
     };
-    const { isStopped, isPaused, direction, speed, isLike } = this.state;
-    const defaultOptions = { animationData: animationDataA, loop: false, autoplay: false };
+    const { speed, isLike, segments } = this.state;
 
-    const clickHandler = () => {
-      if (!isStopped) {
-        this.setState({ direction: direction * -1 });
-      }
-      this.setState({ isStopped: false, isLike: !isLike });
-    };
-
-    return (<div>
-      <Lottie
-        options={defaultOptions}
-        height={400}
-        width={400}
-        isStopped={isStopped}
-        isPaused={isPaused}
-        speed={speed}
-        direction={direction}
-      />
-      <button style={centerStyle} onClick={clickHandler}>{isLike ? 'unlike' : 'like'}</button>
-    </div>);
+    return (
+      <div>
+        <Lottie
+          autoplay={false}
+          animationData={animationDataA}
+          segments={segments}
+          forceSegments
+          style={containerStyle}
+          speed={speed}
+        />
+        <button style={centerStyle} onClick={this._handleClick}>{isLike ? 'unlike' : 'like'}</button>
+      </div>
+    );
   }
 }
