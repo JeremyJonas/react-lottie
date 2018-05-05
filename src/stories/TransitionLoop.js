@@ -14,11 +14,6 @@ export default class TransitionLoop extends React.Component {
     super(props);
 
     this.state = {
-      isStopped: true,
-      isPaused: false,
-      speed: 1,
-      direction: 1,
-      isLike: false,
       isTransitioned: false,
     };
   }
