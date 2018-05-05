@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ReactLottie from '../src/index';
@@ -38,7 +38,7 @@ describe('react-lottie', () => {
 
     describe('ariaRole, ariaLabel, and title', () => {
       test('should set the aria role correctly', () => {
-        const component = shallow(<ReactLottie
+        const component = mount(<ReactLottie
           options={defaultOptions}
           ariaRole="test"
           ariaLabel="testlabel"
@@ -53,7 +53,7 @@ describe('react-lottie', () => {
 
     describe('height and width', () => {
       test('should set the inline styles correctly', () => {
-        const component = shallow(<ReactLottie
+        const component = mount(<ReactLottie
           options={defaultOptions}
           height={199}
           width={188}
