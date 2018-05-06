@@ -1,194 +1,318 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import lottie from 'lottie-web';
 
-export default class Lottie extends React.Component {
-  componentDidMount() {
-    const {
-      options: {
-        loop,
-        autoplay,
-        animationData,
-        rendererSettings,
-        segments,
-        assetsPath,
-      },
-      eventListeners,
-    } = this.props;
+const containerStyle = {
+  width: '100%',
+  height: '100%',
+  margin: '0 auto',
+};
 
-    this.options = {
-      container: this.el,
-      renderer: 'svg',
-      loop: loop !== false,
-      autoplay: autoplay !== false,
-      segments: segments !== false,
-      animationData,
-      rendererSettings,
-      assetsPath,
+class Lottie extends PureComponent {
+  static get propTypes() {
+    return {
+      animationData: PropTypes.object.isRequired,
+      eventListeners: PropTypes.arrayOf(PropTypes.object),
+      isStopped: PropTypes.bool,
+      isPaused: PropTypes.bool,
+      segments: PropTypes.oneOfType([
+        PropTypes.arrayOf(PropTypes.number),
+        PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
+      ]),
+      forceSegments: PropTypes.bool,
+      loop: PropTypes.oneOfType([
+        PropTypes.bool,
+        PropTypes.number,
+      ]),
+      speed: PropTypes.number,
+      direction: PropTypes.number,
+      clickToPause: PropTypes.bool,
+      height: PropTypes.oneOfType([
+        PropTypes.number,
+        PropTypes.string,
+      ]),
+      width: PropTypes.oneOfType([
+        PropTypes.number,
+        PropTypes.string,
+      ]),
+      className: PropTypes.string,
+      style: PropTypes.object,
+      ariaRole: PropTypes.string,
+      ariaLabel: PropTypes.string,
+      title: PropTypes.string,
+      innerRef: PropTypes.func,
+      animationRef: PropTypes.func,
+      onComplete: PropTypes.func,
+      onLoopComplete: PropTypes.func,
+      onEnterFrame: PropTypes.func,
+      onSegmentStart: PropTypes.func,
     };
-
-    this.anim = lottie.loadAnimation(this.options);
-    this.registerEvents(eventListeners);
   }
 
-  componentWillUpdate(nextProps /* , nextState */) {
-    /* Recreate the animation handle if the data is changed */
-    if (this.options.animationData !== nextProps.options.animationData) {
-      this.deRegisterEvents(this.props.eventListeners);
-      this.destroy();
-      this.options = { ...this.options, ...nextProps.options };
-      this.anim = lottie.loadAnimation(this.options);
-      this.registerEvents(nextProps.eventListeners);
+  static get defaultProps() {
+    return {
+      eventListeners: [],
+      isStopped: null,
+      isPaused: null,
+      speed: 1,
+      style: containerStyle,
+      clickToPause: false,
+      ariaRole: 'button',
+      ariaLabel: 'animation',
+      title: '',
+    };
+  }
+
+  static getDerivedStateFromProps(nextProps) {
+    return {
+      isPaused: nextProps.isPaused,
+    };
+  }
+
+  state = {}
+
+  componentDidMount() {
+    this._loadAnimation();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const {
+      animationData, isStopped, segments, forceSegments, speed, direction, loop, eventListeners,
+    } = this.props;
+    const { isPaused } = this.state;
+
+    // changing animationData requires reload
+    let reloaded = false;
+    if (prevProps.animationData !== animationData) {
+      this._unregisterEvents(prevProps.eventListeners);
+      this._destroy();
+
+      this._loadAnimation();
+      reloaded = true;
     }
-  }
 
-  componentDidUpdate() {
-    if (this.props.isStopped) {
-      this.stop();
-    } else if (this.props.segments) {
-      this.playSegments();
-    } else {
+    // ignore properties are set during reload
+    if (!reloaded) {
+      if (prevProps.eventListeners !== eventListeners) {
+        this._registerEvents(eventListeners);
+      }
+
+      if (prevProps.loop !== loop) {
+        this.setLoop(loop);
+      }
+    }
+
+    if (prevProps.speed !== speed) {
+      this.setSpeed(speed);
+    }
+
+    if (prevProps.direction !== direction) {
+      this.setDirection(direction);
+    }
+
+    if (isStopped === true || isPaused === true) {
+      if (prevState.isPaused !== isPaused) {
+        this.pause();
+      }
+      if (prevProps.isStopped !== isStopped) {
+        this.stop();
+      }
+    } else if (prevProps.segments !== segments) {
+      this.playSegments(segments, forceSegments);
+    } else if (prevProps.isStopped) {
       this.play();
+    } else if (prevState.isPaused !== isPaused) {
+      if (isPaused && this._animation.isPaused !== true) {
+        this.pause();
+      } else if (!isPaused && this._animation.isPaused !== false) {
+        this.play();
+      }
     }
-
-    this.pause();
-    this.setSpeed();
-    this.setDirection();
   }
 
   componentWillUnmount() {
-    this.deRegisterEvents(this.props.eventListeners);
-    this.destroy();
-    this.options.animationData = null;
-    this.anim = null;
+    this._unregisterEvents(this.props.eventListeners);
+    this._destroy();
+    this._animation = null;
   }
 
-  setSpeed() {
-    this.anim.setSpeed(this.props.speed);
+  get animation() {
+    return this._animation;
   }
 
-  setDirection() {
-    this.anim.setDirection(this.props.direction);
+  get container() {
+    return this._container;
+  }
+
+  setSpeed(speed) {
+    this._animation.setSpeed(speed);
+  }
+
+  setDirection(direction) {
+    this._animation.setDirection(direction);
+  }
+
+  setLoop(loop) {
+    this._animation.loop = loop;
   }
 
   play() {
-    this.anim.play();
+    this._animation.play();
   }
 
-  playSegments() {
-    this.anim.playSegments(this.props.segments);
+  playSegments(segments, force) {
+    this._animation.playSegments(segments, force);
   }
 
   stop() {
-    this.anim.stop();
+    this._animation.stop();
   }
 
   pause() {
-    if (this.props.isPaused && !this.anim.isPaused) {
-      this.anim.pause();
-    } else if (!this.props.isPaused && this.anim.isPaused) {
-      this.anim.pause();
+    this._animation.pause();
+  }
+
+  togglePause = () => {
+    this.setState({ isPaused: !this.state.isPaused });
+  }
+
+  _handleClick = () => {
+    if (this.state.isPaused == null) {
+      this.setState({ isPaused: false });
+      this.play();
+    } else {
+      this.togglePause();
     }
   }
 
-  destroy() {
-    this.anim.destroy();
-  }
+  _loadAnimation() {
+    const {
+      animationData, speed, direction, segments,
+      isStopped, loop, title, animationRef, eventListeners,
+    } = this.props;
+    const { isPaused } = this.state;
 
-  registerEvents(eventListeners) {
-    eventListeners.forEach((eventListener) => {
-      this.anim.addEventListener(eventListener.eventName, eventListener.callback);
+    const options = {
+      container: this._container,
+    };
+    // add all non-propTypes props to options
+    Object.keys(this.props).forEach((key) => {
+      if (!(key in Lottie.propTypes)) {
+        options[key] = this.props[key];
+      }
     });
-  }
-
-  deRegisterEvents(eventListeners) {
-    eventListeners.forEach((eventListener) => {
-      this.anim.removeEventListener(eventListener.eventName, eventListener.callback);
+    // add lottie options based propTypes to options
+    Object.assign(options, {
+      animationData,
+      speed,
+      direction,
     });
+
+    if (options.name == null) {
+      options.name = title;
+    }
+
+    // force autoplay to false if isPaused or isStopped
+    if (isStopped === true || isPaused === true) {
+      options.autoplay = false;
+    }
+
+    // use lottie default loop value unless explicitly defined in props
+    if (loop != null) {
+      options.loop = loop;
+    }
+
+    this._animation = lottie.loadAnimation(options);
+    if (animationRef != null) {
+      animationRef(this._animation);
+    }
+
+    this._registerEvents(eventListeners);
+
+    this.setSpeed(speed);
+    this.setDirection(direction);
+
+    if (options.autoplay !== false && segments != null) {
+      this.playSegments(segments, true);
+    }
   }
 
-  handleClickToPause = () => {
-    // The pause() method is for handling pausing by passing a prop isPaused
-    // This method is for handling the ability to pause by clicking on the animation
-    if (this.anim.isPaused) {
-      this.anim.play();
-    } else {
-      this.anim.pause();
+  _destroy() {
+    if (this._animation != null) {
+      this._animation.destroy();
+    }
+  }
+
+  _registerEvents(eventListeners) {
+    const {
+      onComplete, onLoopComplete, onEnterFrame, onSegmentStart,
+    } = this.props;
+
+    if (this._animation != null) {
+      if (onComplete != null) this._animation.onComplete = onComplete;
+      if (onLoopComplete != null) this._animation.onLoopComplete = onLoopComplete;
+      if (onEnterFrame != null) this._animation.onEnterFrame = onEnterFrame;
+      if (onSegmentStart != null) this._animation.onSegmentStart = onSegmentStart;
+
+      if (eventListeners != null) {
+        eventListeners.forEach((eventListener) => {
+          this._animation.addEventListener(eventListener.eventName, eventListener.callback);
+        });
+      }
+    }
+  }
+
+  _unregisterEvents(eventListeners) {
+    const {
+      onComplete, onLoopComplete, onEnterFrame, onSegmentStart,
+    } = this.props;
+
+    if (this._animation != null) {
+      if (this._animation.onComplete === onComplete) this._animation.onComplete = null;
+      if (this._animation.onLoopComplete === onLoopComplete) this._animation.onLoopComplete = null;
+      if (this._animation.onEnterFrame === onEnterFrame) this._animation.onEnterFrame = null;
+      if (this._animation.onSegmentStart === onSegmentStart) this._animation.onSegmentStart = null;
+
+      if (eventListeners != null) {
+        eventListeners.forEach((eventListener) => {
+          this._animation.addEventListener(eventListener.eventName, eventListener.callback);
+        });
+      }
+    }
+  }
+
+  _setContainerRef = (ref) => {
+    this._container = ref;
+
+    if (this.props.innerRef != null) {
+      this.props.innerRef(ref);
     }
   }
 
   render() {
     const {
-      width,
-      height,
-      ariaRole,
-      ariaLabel,
-      isClickToPauseDisabled,
-      title,
+      className, width, height, clickToPause, ariaRole, ariaLabel, title,
     } = this.props;
 
-    const getSize = (initial) => {
-      let size;
-
-      if (typeof initial === 'number') {
-        size = `${initial}px`;
-      } else {
-        size = initial || '100%';
-      }
-
-      return size;
-    };
-
-    const lottieStyles = {
-      width: getSize(width),
-      height: getSize(height),
-      overflow: 'hidden',
-      margin: '0 auto',
-    };
-
-    const onClickHandler = isClickToPauseDisabled ? () => null : this.handleClickToPause;
+    const style = Object.assign({}, this.props.style || {});
+    if (width != null) style.width = width;
+    if (height != null) style.height = height;
 
     return (
-      // Bug with eslint rules https://github.com/airbnb/javascript/issues/1374
-      // eslint-disable-next-line jsx-a11y/no-static-element-interactions
       <div
-        ref={(c) => {
-          this.el = c;
-        }}
-        style={lottieStyles}
-        onClick={onClickHandler}
+        className={className}
+        style={style}
+        ref={this._setContainerRef}
+        onClick={clickToPause ? this._handleClick : null}
         title={title}
         role={ariaRole}
         aria-label={ariaLabel}
-        tabIndex="0"
       />
     );
   }
 }
 
-Lottie.propTypes = {
-  eventListeners: PropTypes.arrayOf(PropTypes.object),
-  options: PropTypes.object.isRequired,
-  height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  isStopped: PropTypes.bool,
-  isPaused: PropTypes.bool,
-  speed: PropTypes.number,
-  segments: PropTypes.arrayOf(PropTypes.number),
-  direction: PropTypes.number,
-  ariaRole: PropTypes.string,
-  ariaLabel: PropTypes.string,
-  isClickToPauseDisabled: PropTypes.bool,
-  title: PropTypes.string,
-};
-
-Lottie.defaultProps = {
-  eventListeners: [],
-  isStopped: false,
-  isPaused: false,
-  speed: 1,
-  ariaRole: 'button',
-  ariaLabel: 'animation',
-  isClickToPauseDisabled: false,
-  title: '',
+export {
+  Lottie as default,
+  containerStyle,
 };
