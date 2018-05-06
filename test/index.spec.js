@@ -1,8 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import ReactLottie from '../src/index';
-import animationData from '../src/stories/beating-heart.json';
-import animationData2 from '../src/stories/pinjump.json';
+import animationData from '../stories/beating-heart.json';
+import animationData2 from '../stories/pinjump.json';
 
 describe('react-lottie', () => {
   describe('clickToPause', () => {

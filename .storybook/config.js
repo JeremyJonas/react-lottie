@@ -1,12 +1,17 @@
-// IMPORTANT
-// ---------
-// This is an auto generated file with React CDK.
-// Do not modify this file.
+import { configure, addDecorator } from '@storybook/react';
+import { setOptions } from '@storybook/addon-options';
+import { withKnobs } from '@storybook/addon-knobs/react';
 
-import { configure } from '@storybook/react';
-
+// automatically import all files ending in *.stories.js
+const req = require.context('../stories', true, /.?stories.jsx?$/);
 function loadStories() {
-  require('../src/stories');
+  req.keys().forEach(filename => req(filename));
 }
+
+setOptions({
+	addonPanelInRight: true,
+});
+
+addDecorator(withKnobs);
 
 configure(loadStories, module);

@@ -10,7 +10,7 @@
   "scripts": {
     "release": "git add package.json && git commit -m 'chore: bump version number' && standard-version --first-release && git push --follow-tags origin master && npm publish",
     "prepublish": ". ./.scripts/prepublish.sh",
-    "lint": "eslint src test",
+    "lint": "eslint src stories test",
     "lintfix": "eslint src --fix",
     "testonly": "jest",
     "test": "npm run lint && npm run testonly",
@@ -20,7 +20,9 @@
     "postpublish": "npm run publish-storybook"
   },
   "devDependencies": {
+    "@storybook/addon-actions": "^3.4.3",
     "@storybook/addon-knobs": "^3.4.3",
+    "@storybook/addon-options": "^3.4.3",
     "@storybook/addons": "^3.4.3",
     "@storybook/react": "^3.4.3",
     "babel-cli": "^6.26.0",
@@ -46,7 +48,8 @@
     "prop-types": "^15.6.1",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
-    "sinon": "^5.0.3"
+    "sinon": "^5.0.3",
+    "storybook-readme": "^3.3.0"
   },
   "peerDependencies": {
     "react": "^16.0.0 || ^17.0.0"
