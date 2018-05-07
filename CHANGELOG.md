@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.0.0"></a>
+# [2.0.0](https://github.com/chenqingspring/react-lottie/compare/v1.1.0...v2.0.0) (2018-05-07)
+
+
+### Features
+
+* **componentDidMount:** enable `assetsPath` option ([7eef671](https://github.com/chenqingspring/react-lottie/commit/7eef671))
+* major refactor to act as proxy to lottie, support additional features and resolve issues ([3f1134f](https://github.com/chenqingspring/react-lottie/commit/3f1134f))
+* upgrade React@16 Storybook@3 Mocha=>Jest ([62dd31b](https://github.com/chenqingspring/react-lottie/commit/62dd31b))
+
+
+### BREAKING CHANGES
+
+* Changing api to better align with lottie-web funcationality and defaults, as well as updating to new React api/standards.
+* - change `isClickToPauseDisabled` to `clickToPause`, reversing the effect making click to pause functionality opt-in
+- removed `options` property in favor of explicit *controlled* properties (`animationData`, `loop`, `segments`) and any non-propTypes property being proxied as option to `lottie.loadAnimation(options)`
+- segments are initially played if defined; although expected behaivor this was not the case before
+- `loop` property is defaulted to `undefined` to take on lottie-web default of `false`
+
+Changed:
+- Use React 16 component lifecycle api
+- Proxy all additional props to `lottie.loadAnimation(options)` to support additional lottie-web functionality
+- Fix issue where segments played two times
+- Added `forceSegments` prop to support `force` functionality of `lottie.playSegments(segments, force)`
+- Updated `loop` prop to support `number` type
+- Added `innerRef` prop to return inner reference to container div
+- Added `animationRef` prop to return reference to lottie animation instance
+- Added `onComplete`, `onLoopComplete`, `onEnterFrame` and `onSegementStart` props to support direct event callbacks
+- Added styled-component pattern support for `className` and `style` properties
+- Updated and completed unit testing for all properties and cases
+
+
+
 <a name="1.1.0"></a>
 # [1.1.0](https://github.com/chenqingspring/react-lottie/compare/v1.0.0...v1.1.0) (2018-04-03)
 
