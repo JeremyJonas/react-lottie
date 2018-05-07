@@ -11,40 +11,118 @@ const containerStyle = {
 class Lottie extends PureComponent {
   static get propTypes() {
     return {
+      /**
+       * An Object with the exported animation data
+       */
       animationData: PropTypes.object.isRequired,
-      eventListeners: PropTypes.arrayOf(PropTypes.object),
+      /**
+       * Controls stopped behavior of Lottie instance
+       */
       isStopped: PropTypes.bool,
+      /**
+       * Controls paused behavior of Lottie instance
+       */
       isPaused: PropTypes.bool,
+      /**
+       * Defines what segment of the animation to play using
+       * [playSegments(segments, force)](https://github.com/airbnb/lottie-web#playsegmentssegments-forceflag)
+       */
       segments: PropTypes.oneOfType([
         PropTypes.arrayOf(PropTypes.number),
         PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
       ]),
+      /**
+       * Indicates `force` parameter value of
+       * [playSegments(segments, force)](https://github.com/airbnb/lottie-web#playsegmentssegments-forceflag)
+       * when using segments
+       */
       forceSegments: PropTypes.bool,
+      /**
+       * Indicates if animation is looping, defaults to lottie default of `false`
+       */
       loop: PropTypes.oneOfType([
         PropTypes.bool,
         PropTypes.number,
       ]),
+      /**
+       * Controls speed of animation playback through
+       * [setSpeed(speed)](https://github.com/airbnb/lottie-web#setspeedspeed)
+       */
       speed: PropTypes.number,
+      /**
+       * Controls direction of animation playback through
+       * [setDirection(direction)](https://github.com/airbnb/lottie-web#setdirectiondirection)
+       */
       direction: PropTypes.number,
+      /**
+       * Registers [event](https://github.com/airbnb/lottie-web#events)
+       * callbacks with Lottie instance.
+       * @example `[{ eventName: 'complete', callback: console.log }]`
+       */
+      eventListeners: PropTypes.arrayOf(PropTypes.object),
+      /**
+       * Enables clicking on animation to toggle play/pause
+       */
       clickToPause: PropTypes.bool,
+      /**
+       * Shorthand for setting `style.height`
+       */
       height: PropTypes.oneOfType([
         PropTypes.number,
         PropTypes.string,
       ]),
+      /**
+       * Shorthand for setting `style.width`
+       */
       width: PropTypes.oneOfType([
         PropTypes.number,
         PropTypes.string,
       ]),
+      /**
+       * Sets `className` property of container div
+       */
       className: PropTypes.string,
+      /**
+       * Sets inline style of container div
+       */
       style: PropTypes.object,
+      /**
+       * Sets **aria** `role` of container div
+       */
       ariaRole: PropTypes.string,
+      /**
+       * Sets  **aria** `aria-label` of container div
+       */
       ariaLabel: PropTypes.string,
+      /**
+       * Sets  **aria** `title` of container div
+       */
       title: PropTypes.string,
+      /**
+       * Callback to receive reference to container div node
+       * @callback (ref) => this.container = ref
+       */
       innerRef: PropTypes.func,
+      /**
+       * Callback to receive reference to Lottie animation instance
+       * @callback (ref) => this.animationInstance = ref
+       */
       animationRef: PropTypes.func,
+      /**
+       * Direct event callback for `complete` [event](https://github.com/airbnb/lottie-web#events)
+       */
       onComplete: PropTypes.func,
+      /**
+       * Direct event callback for `loopComplete` [event](https://github.com/airbnb/lottie-web#events)
+       */
       onLoopComplete: PropTypes.func,
+      /**
+       * Direct event callback for `enterFrame` [event](https://github.com/airbnb/lottie-web#events)
+       */
       onEnterFrame: PropTypes.func,
+      /**
+       * Direct event callback for `segmentStart` [event](https://github.com/airbnb/lottie-web#events)
+       */
       onSegmentStart: PropTypes.func,
     };
   }
